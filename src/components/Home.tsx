@@ -1,4 +1,5 @@
 import styles from './Home.module.css'
+import Spinner from './Spinner'
 
 export default function Home(
   {
@@ -25,7 +26,7 @@ export default function Home(
       <div className={styles["button-container"]}>
         {
           loading ?
-            <div className={styles.spinner} />
+            <Spinner />
           : error ?
             <div className={styles.error}>
               <p className={styles.errorText}>An error occured. Please reload the page.</p>

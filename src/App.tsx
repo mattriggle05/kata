@@ -1,10 +1,10 @@
-import Controller from './components/Controller';
+import BaseController from './components/BaseController';
 import Layout from './layouts/Layout';
 
 function App() {
   return (
     <Layout>
-      <Controller />
+      <BaseController />
     </Layout>
   )
 }

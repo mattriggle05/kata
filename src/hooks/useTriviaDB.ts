@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
-export function useTriviaDB() {
-  const [data, setData] = useState<object | null>(null);
+export function useTriviaDB<T = unknown>() {
+  const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -11,22 +11,23 @@ export function useTriviaDB() {
 
     async function fetchWithRetry(attempt: number) {
       try {
-        const res = await fetch("https://opentdb.com/api.php?amount=50", {
+        const res = await fetch("https://opentdb.com/api.php?amount=50&encode=url3986", {
           signal: controller.signal,
         });
         if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
         const json = await res.json();
+        
         setData(json);
+        setLoading(false);
       } catch (err: any) {
         if (err.name === "AbortError") return;
 
-        if (attempt < 3) { // only retry 3 times
-          retryTimeout = setTimeout(() => fetchWithRetry(attempt + 1), 5000); // 5 second rate limit on api
+        if (attempt < 3) {
+          retryTimeout = setTimeout(() => fetchWithRetry(attempt + 1), 5000);
         } else {
           setError(err.message);
+          setLoading(false);
         }
-      } finally {
-        setLoading(false);
       }
     }
 
