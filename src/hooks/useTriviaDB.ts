@@ -6,18 +6,36 @@ export function useTriviaDB() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
+    let retryTimeout: ReturnType<typeof setTimeout>;
 
-    fetch("https://opentdb.com/api.php?amount=1")
-      .then((res) => {
+    async function fetchWithRetry(attempt: number) {
+      try {
+        const res = await fetch("https://opentdb.com/api.php?amount=50", {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
-        return res.json();
-      })
-      .then((json) => { if (!cancelled) setData(json); })
-      .catch((err) => { if (!cancelled) setError(err.message); })
-      .finally(() => { if (!cancelled) setLoading(false); });
+        const json = await res.json();
+        setData(json);
+      } catch (err: any) {
+        if (err.name === "AbortError") return;
 
-    return () => { cancelled = true; };
+        if (attempt < 3) { // only retry 3 times
+          retryTimeout = setTimeout(() => fetchWithRetry(attempt + 1), 5000); // 5 second rate limit on api
+        } else {
+          setError(err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchWithRetry(0);
+
+    return () => {
+      controller.abort();
+      clearTimeout(retryTimeout);
+    };
   }, []);
 
   return { data, loading, error };

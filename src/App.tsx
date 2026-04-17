@@ -1,10 +1,10 @@
-import Home from './components/Home';
+import Controller from './components/Controller';
 import Layout from './layouts/Layout';
 
 function App() {
   return (
     <Layout>
-      <Home />
+      <Controller />
     </Layout>
   )
 }

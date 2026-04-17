@@ -1,3 +1,78 @@
-.quiz {
-  color: var(--text-h)
+.header1 {
+  color: var(--text-h);
+  text-align: center;
+  margin-top: 0px;
+  margin-bottom: 8px;
+}
+
+.header2 {
+  color: var(--text-h);
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.description {
+  color: var(--text);
+  text-align: center;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.button {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 2px solid #0000;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 16px;
+  transition: border-color .3s;
+}
+
+.button:hover {
+  border-color: var(--accent-border);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #ccc;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  border: 1px solid #f00;
+  background-color: rgb(85, 25, 25);
+  border-radius: var(--border-r);
+  padding: 8px;
+  text-align: center;
+  color: #e22;
+
+}
+
+.errorText {
+    margin: 4px;
+}
+
+.errorCode {
+  display: block;
+  width: 100%;
+  font-size: 16px;
 }
