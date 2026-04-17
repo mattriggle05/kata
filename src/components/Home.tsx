@@ -1,4 +1,5 @@
 import styles from './Home.module.css'
+import commonStyles from './common.module.css'
 import Spinner from './Spinner'
 
 export default function Home(
@@ -34,9 +35,9 @@ export default function Home(
             </div>
           :
             <>
-              <button className={styles.button} onClick={() => select(10)}>10 questions</button>
-              <button className={styles.button} onClick={() => select(25)}>25 questions</button>
-              <button className={styles.button} onClick={() => select(50)}>50 questions</button>
+              <button style={{ width: "30%" }} className={commonStyles.button} onClick={() => select(10)}>10 questions</button>
+              <button style={{ width: "30%" }} className={commonStyles.button} onClick={() => select(25)}>25 questions</button>
+              <button style={{ width: "30%" }} className={commonStyles.button} onClick={() => select(50)}>50 questions</button>
             </>
         }
       </div>

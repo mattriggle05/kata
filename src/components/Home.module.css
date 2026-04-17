@@ -28,20 +28,6 @@
   align-items: center;
 }
 
-.button {
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid #0000;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 16px;
-  transition: border-color .3s;
-}
-
-.button:hover {
-  border-color: var(--accent-border);
-}
-
 .spinner {
   width: 32px;
   height: 32px;
