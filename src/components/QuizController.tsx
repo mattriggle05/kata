@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTriviaDB } from '../hooks/useTriviaDB';
 import Home from './Home';
 import Question from './Question';
@@ -7,6 +7,15 @@ import Timer from './Timer';
 import Results from './Results';
 
 const TIMER_DURATION = 11;
+
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
 
 export default function QuizController() {
   const [sessionKey, setSessionKey] = useState(0);
@@ -18,63 +27,75 @@ export default function QuizController() {
   const [timeLeft, setTimeLeft] = useState<number>(TIMER_DURATION);
   const [isFinished, setIsFinished] = useState<boolean>(false);
 
+  const [revealedAnswer, setRevealedAnswer] = useState<string | null | undefined>(undefined);
+  
+  const revealTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const questionsSelected = data?.results?.slice(0, questionsNum) || [];
   const currentQuestionData = questionsSelected[currentIndex];
 
   const resetQuiz = () => {
+    if (revealTimeout.current) clearTimeout(revealTimeout.current);
     setQuestionsNum(0);
     setCurrentIndex(0);
     setScore({ correct: 0, incorrect: 0 });
     setTimeLeft(TIMER_DURATION);
     setIsFinished(false);
+    setRevealedAnswer(undefined);
     setSessionKey(prev => prev + 1); 
   };
 
-  // 1. Timer ONLY counts down. No other side effects.
   useEffect(() => {
-    if (questionsNum === 0 || isFinished || !currentQuestionData) return;
+    if (questionsNum === 0 || isFinished || !currentQuestionData || revealedAnswer !== undefined) return;
 
     const interval = setInterval(() => {
       setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [currentIndex, questionsNum, isFinished, currentQuestionData]);
+  }, [currentIndex, questionsNum, isFinished, currentQuestionData, revealedAnswer]);
 
-  // 2. Watcher Effect: Triggers the next question cleanly when time hits 0
   useEffect(() => {
-    if (timeLeft === 0 && currentQuestionData) {
+    if (timeLeft === 0 && currentQuestionData && revealedAnswer === undefined) {
       handleNextQuestion(null);
     }
-  }, [timeLeft]);
+  }, [timeLeft, currentQuestionData, revealedAnswer]);
 
   const handleNextQuestion = (selectedAnswer: string | null) => {
-    // Reset timer immediately
-    setTimeLeft(TIMER_DURATION);
+    if (revealedAnswer !== undefined) return;
 
-    // Score logic
-    if (selectedAnswer && selectedAnswer === currentQuestionData.correct_answer) {
-      setScore((prev) => ({ ...prev, correct: prev.correct + 1 }));
-    } else {
-      setScore((prev) => ({ ...prev, incorrect: prev.incorrect + 1 }));
-    }
+    setRevealedAnswer(selectedAnswer);
 
-    // Move forward
-    if (currentIndex < questionsSelected.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    } else {
-      setIsFinished(true);
-    }
+    revealTimeout.current = setTimeout(() => {
+      setTimeLeft(TIMER_DURATION);
+
+      if (selectedAnswer && selectedAnswer === currentQuestionData.correct_answer) {
+        setScore((prev) => ({ ...prev, correct: prev.correct + 1 }));
+      } else {
+        setScore((prev) => ({ ...prev, incorrect: prev.incorrect + 1 }));
+      }
+
+      if (currentIndex < questionsSelected.length - 1) {
+        setCurrentIndex((prev) => prev + 1);
+      } else {
+        setIsFinished(true);
+      }
+      
+      setRevealedAnswer(undefined);
+    }, 1500);
   };
 
-  // Safely shuffles answers once per question
   const shuffledAnswers = useMemo(() => {
     if (!currentQuestionData) return [];
-    return [currentQuestionData.correct_answer, ...currentQuestionData.incorrect_answers]
-      .sort(() => Math.random() - 0.5);
+    
+    const allAnswers = [
+      currentQuestionData.correct_answer,
+      ...currentQuestionData.incorrect_answers
+    ];
+
+    return shuffleArray(allAnswers);
   }, [currentQuestionData]);
 
-  // Logic Priority
   if (questionsNum === 0) {
     return <Home loading={loading} error={error} select={setQuestionsNum} />;
   }
@@ -95,6 +116,8 @@ export default function QuizController() {
         answers={shuffledAnswers}
         onNext={handleNextQuestion}
         currentCount={currentIndex + 1}
+        correctAnswer={currentQuestionData.correct_answer}
+        revealedAnswer={revealedAnswer}
       />
     </div>
   );

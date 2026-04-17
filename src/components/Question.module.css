@@ -1,1 +1,21 @@
 
+/* Add a disabled state so it looks unclickable during the animation */
+.button:disabled {
+  cursor: default;
+}
+
+/* The new reveal classes */
+.correct {
+  border-color: #4CAF50;
+  background-color: rgba(76, 175, 80, 0.1);
+  /* Optional: light green tint */
+  color: #4CAF50;
+}
+
+.incorrect {
+  border-color: #ff4d4d;
+  background-color: rgba(255, 77, 77, 0.1);
+  /* Optional: light red tint */
+  opacity: 0.6;
+  /* Dim the wrong answers so the right one pops more */
+}
