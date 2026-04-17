@@ -14,17 +14,17 @@ export default function Home(
   }) {
   return (
     <>
-      <h1 className={styles.header1}>Welcome to Kata Trivia!</h1>
-      <p className={styles.description}>
+      <h1 className={commonStyles.header1}>Welcome to Kata Trivia!</h1>
+      <p className={commonStyles.description}>
         Test your skills against trvia questions of varying difficulties
         across a range of categories! You will have 10 seconds to answer
         each question, and after you have answered all of them you will
         get your score!
       </p>
       <hr />
-      <h2 className={styles.header2}>Choose your quiz:</h2>
+      <h2 className={commonStyles.header2}>Choose your quiz:</h2>
       
-      <div className={styles["button-container"]}>
+      <div className={commonStyles["flex-container"]}>
         {
           loading ?
             <Spinner />

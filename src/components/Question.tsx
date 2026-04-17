@@ -11,10 +11,10 @@ interface QuestionProps {
 export default function Question({ question, answers, onNext, currentCount }: QuestionProps) {
   return (
     <>
-      <h1 className={styles.header1}>Question {currentCount}</h1>
-      <h2 className={styles.header2}>{decodeURIComponent(question)}</h2>
+      <h1 className={commonStyles.header1}>Question {currentCount}</h1>
+      <h2 className={commonStyles.header2}>{decodeURIComponent(question)}</h2>
       <hr />
-      <div className={styles["button-container"]}>
+      <div className={commonStyles["flex-container"]}>
         {answers.slice(0, 2).map((answer, i) => (
           <button key={i} style={{ width: "48%", height: "64px" }} className={commonStyles.button} onClick={() => onNext(answer)}>
             {decodeURIComponent(answer)}
@@ -22,7 +22,7 @@ export default function Question({ question, answers, onNext, currentCount }: Qu
         ))}
       </div>
       {answers.length > 2 && (
-        <div className={styles["button-container"]}>
+        <div className={commonStyles["flex-container"]}>
           {answers.slice(2, 4).map((answer, i) => (
             <button key={i} style={{ width: "48%", height: "64px" }} className={commonStyles.button} onClick={() => onNext(answer)}>
               {decodeURIComponent(answer)}

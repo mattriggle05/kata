@@ -14,3 +14,27 @@
 .button:hover {
   border-color: var(--accent-border);
 }
+
+.flex-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.header1 {
+  color: var(--text-h);
+  text-align: center;
+  margin-top: 0px;
+  margin-bottom: 8px;
+}
+
+.header2 {
+  color: var(--text-h);
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.description {
+  color: var(--text);
+  text-align: center;
+}
