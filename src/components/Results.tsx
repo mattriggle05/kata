@@ -26,7 +26,6 @@ export default function Results({ correct, total, reset }: { correct: number, to
       <h1 className={commonStyles.header1}>Your score:</h1>
       <h2 className={commonStyles.header2}>{correct} / {total}</h2>
       
-      
       <p className={commonStyles.description}>{ appraisal }</p>
 
       <div className={commonStyles["flex-container"]}>

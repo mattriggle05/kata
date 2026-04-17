@@ -1,123 +1,128 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useTriviaDB } from '../hooks/useTriviaDB';
 import Home from './Home';
 import Question from './Question';
-import Spinner from './Spinner';
 import Timer from './Timer';
 import Results from './Results';
 
-const TIMER_DURATION = 11;
-
-function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
 
 export default function QuizController() {
-  const [sessionKey, setSessionKey] = useState(0);
-  const { data, loading, error } = useTriviaDB<any>(sessionKey);
-  
-  const [questionsNum, setQuestionsNum] = useState<number>(0);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [score, setScore] = useState({ correct: 0, incorrect: 0 });
-  const [timeLeft, setTimeLeft] = useState<number>(TIMER_DURATION);
-  const [isFinished, setIsFinished] = useState<boolean>(false);
+  const QUESTION_TIME = 10; // seconds
 
-  const [revealedAnswer, setRevealedAnswer] = useState<string | null | undefined>(undefined);
-  
+  const [sessionKey, setSessionKey] = useState(0);
+  const { data, loading, error } = useTriviaDB(sessionKey);
+  const [questionsNum, setQuestionsNum] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
+  const [isFinished, setIsFinished] = useState(false);
+  const [isRevealing, setIsRevealing] = useState(false);
+
+  const pendingAnswer = useRef<string | null>(null);
   const revealTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const questionsSelected = data?.results?.slice(0, questionsNum) || [];
-  const currentQuestionData = questionsSelected[currentIndex];
+  // slice off only the number of questions we're using
+  const questionsSelected = useMemo(() => {
+    return data?.results?.slice(0, questionsNum) ?? []
+  }, [data, questionsNum]);
+  const currentQuestion = questionsSelected[currentIndex];
 
+  // for the rest button on the results screen
   const resetQuiz = () => {
     if (revealTimeout.current) clearTimeout(revealTimeout.current);
     setQuestionsNum(0);
     setCurrentIndex(0);
-    setScore({ correct: 0, incorrect: 0 });
-    setTimeLeft(TIMER_DURATION);
+    setCorrectCount(0);
+    setTimeLeft(QUESTION_TIME);
     setIsFinished(false);
-    setRevealedAnswer(undefined);
-    setSessionKey(prev => prev + 1); 
+    setIsRevealing(false);
+    setSessionKey(prev => prev + 1);
   };
 
-  useEffect(() => {
-    if (questionsNum === 0 || isFinished || !currentQuestionData || revealedAnswer !== undefined) return;
 
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
+  // handles selecting an answer (string) AND running out of time (null)
+  const handleNextQuestion = useCallback((selectedAnswer: string | null) => {
+    if (isRevealing) return;
 
-    return () => clearInterval(interval);
-  }, [currentIndex, questionsNum, isFinished, currentQuestionData, revealedAnswer]);
-
-  useEffect(() => {
-    if (timeLeft === 0 && currentQuestionData && revealedAnswer === undefined) {
-      handleNextQuestion(null);
-    }
-  }, [timeLeft, currentQuestionData, revealedAnswer]);
-
-  const handleNextQuestion = (selectedAnswer: string | null) => {
-    if (revealedAnswer !== undefined) return;
-
-    setRevealedAnswer(selectedAnswer);
+    pendingAnswer.current = selectedAnswer;
+    setIsRevealing(true);
 
     revealTimeout.current = setTimeout(() => {
-      setTimeLeft(TIMER_DURATION);
+      setTimeLeft(QUESTION_TIME);
 
-      if (selectedAnswer && selectedAnswer === currentQuestionData.correct_answer) {
-        setScore((prev) => ({ ...prev, correct: prev.correct + 1 }));
-      } else {
-        setScore((prev) => ({ ...prev, incorrect: prev.incorrect + 1 }));
+      if (pendingAnswer.current !== null && pendingAnswer.current === currentQuestion?.correct_answer) {
+        setCorrectCount(prev => prev + 1);
       }
 
-      if (currentIndex < questionsSelected.length - 1) {
-        setCurrentIndex((prev) => prev + 1);
+      if (currentIndex < questionsNum - 1) {
+        setCurrentIndex(prev => prev + 1);
       } else {
         setIsFinished(true);
       }
-      
-      setRevealedAnswer(undefined);
+
+      setIsRevealing(false);
     }, 1500);
-  };
+  }, [isRevealing, currentQuestion, currentIndex, questionsNum]);
 
+
+
+  // tick the timer down once per second
+  useEffect(() => {
+    if (questionsNum === 0 || isFinished || !currentQuestion || isRevealing) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentIndex, questionsNum, isFinished, currentQuestion, isRevealing]);
+
+
+  // timer runs out
+  useEffect(() => {
+    if (timeLeft === 0 && currentQuestion && !isRevealing) {
+      handleNextQuestion(null);
+    }
+  }, [timeLeft, currentQuestion, isRevealing, handleNextQuestion]);
+
+
+
+  // uses the shuffle the answers so theyre not always int he same order
   const shuffledAnswers = useMemo(() => {
-    if (!currentQuestionData) return [];
-    
-    const allAnswers = [
-      currentQuestionData.correct_answer,
-      ...currentQuestionData.incorrect_answers
-    ];
+    if (!currentQuestion) return [];
 
-    return shuffleArray(allAnswers);
-  }, [currentQuestionData]);
+    const shuffled = [currentQuestion.correct_answer, ...currentQuestion.incorrect_answers];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
 
+    return shuffled;
+  }, [currentQuestion]);
+
+
+
+  // if the user hasnt selected a quiz, they get the welcome page
   if (questionsNum === 0) {
     return <Home loading={loading} error={error} select={setQuestionsNum} />;
   }
 
+  // if they just finished their quiz they get results
   if (isFinished) {
-    return <Results correct={score.correct} total={questionsSelected.length} reset={resetQuiz} />;
+    return <Results correct={correctCount} total={questionsSelected.length} reset={resetQuiz} />;
   }
 
-  if (loading || !currentQuestionData) {
-    return <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}><Spinner /></div>;
-  }
-
+  // otherwise we are in a quiz so we show the current question
   return (
     <div>
-      <Timer timeLeft={timeLeft} timeTotal={TIMER_DURATION} />
+      <Timer timeLeft={timeLeft} timeTotal={QUESTION_TIME} />
       <Question
-        question={currentQuestionData.question}
+        question={currentQuestion.question}
         answers={shuffledAnswers}
         onNext={handleNextQuestion}
         currentCount={currentIndex + 1}
-        correctAnswer={currentQuestionData.correct_answer}
-        revealedAnswer={revealedAnswer}
+        correctAnswer={currentQuestion.correct_answer}
+        isRevealing={isRevealing}
       />
     </div>
   );

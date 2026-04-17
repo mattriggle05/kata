@@ -1,16 +1,26 @@
-# React + Vite
+# Kata Trivia
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a small trivia app built in a few hours using Typescript and React while fetching data from Open Trivia Database.
 
-Currently, two official plugins are available:
+## Code
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+All the code for this project is located in `/src/`. This project uses Typescript for it's code and css modules for styling. `QuizController.tsx` holds all logic for running the quiz while using `Home.tsx`, `Question.tsx`, and `Results.tsx` as it's main views. `Spinner.tsx` and `Timer.tsx` are just small visuals used in other compoenents. All unique styles for a component are sotred in it's css module if it has any, and re-used styles are stored in `common.module.css`.
 
-## React Compiler
+## Running
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+This app is hosted on github pages at 
 
-## Expanding the ESLint configuration
+[mattriggle05.github.io/kata/](mattriggle05.github.io/kata/)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+You can also run the dev version locally by cloning the repository and running
+
+```
+npm run dev
+```
+
+or host the production version locally by running
+
+```
+npm run build
+npm run preveiw
+```

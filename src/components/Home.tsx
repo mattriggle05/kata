@@ -2,16 +2,13 @@ import styles from './Home.module.css'
 import commonStyles from './common.module.css'
 import Spinner from './Spinner'
 
-export default function Home(
-  {
-    loading,
-    error,
-    select
-  }: {
-    loading: boolean,
-    error: string | null,
-    select: (arg0: number) => void
-  }) {
+interface HomeProps {
+  loading: boolean,
+  error: string | null,
+  select: (arg0: number) => void
+}
+
+export default function Home({ loading, error, select}: HomeProps) {
   return (
     <>
       <h1 className={commonStyles.header1}>Welcome to Kata Trivia!</h1>
