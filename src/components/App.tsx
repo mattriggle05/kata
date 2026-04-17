@@ -8,7 +8,7 @@ function App() {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
-  return <p>{JSON.stringify(data, null, 2)}</p>;
+  return <p className={styles.quiz}>{JSON.stringify(data, null, 2)}</p>;
 }
 
 export default App
