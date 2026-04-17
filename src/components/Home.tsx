@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react'
-import styles from './App.module.css'
+import styles from './Home.module.css'
 import { useTriviaDB } from '../hooks/useTriviaDB';
 
-function App() {
+export default function Home() {
   const { data, loading, error } = useTriviaDB();
 
   if (loading) return <p>Loading...</p>;
@@ -10,5 +9,3 @@ function App() {
 
   return <p className={styles.quiz}>{JSON.stringify(data, null, 2)}</p>;
 }
-
-export default App

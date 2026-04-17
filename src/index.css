@@ -9,6 +9,7 @@
   --accent-border: #c084fc80;
   --social-bg: #2f303a80;
   --shadow: #0006 0 10px 15px -3px, #00000040 0 4px 6px -2px;
+  --border-r: 16px;
 
   font-family: system-ui, "Segoe UI", Roboto, sans-serif;
   background-color: var(--bg);
