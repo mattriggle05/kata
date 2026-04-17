@@ -10,7 +10,7 @@ All the code for this project is located in `/src/`. This project uses Typescrip
 
 This app is hosted on github pages at 
 
-[mattriggle05.github.io/kata/](mattriggle05.github.io/kata/)
+[mattriggle05.github.io/kata/](https://mattriggle05.github.io/kata/)
 
 You can also run the dev version locally by cloning the repository and running
 
